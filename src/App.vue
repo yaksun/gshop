@@ -1,28 +1,27 @@
 <template>
   <div id="app">
-    <img src="./assets/logo.png">
-    <HelloWorld/>
+    <router-view></router-view>
+    <FooterGuide />
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld'
-
+import FooterGuide from './components/FooterGuide/FooterGuide.vue'
+import {mapActions} from 'vuex'
 export default {
   name: 'App',
   components: {
-    HelloWorld
-  }
+    FooterGuide
+  },
+  mounted() {
+    this.getGoodCategorys()
+  },
+  methods: {
+    ...mapActions(['getGoodCategorys'])
+  },
 }
 </script>
 
 <style>
-#app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
+
 </style>
