@@ -15,9 +15,10 @@ export default {
   },
   mounted() {
     this.getGoodCategorys()
+    this.getAddress()
   },
   methods: {
-    ...mapActions(['getGoodCategorys'])
+    ...mapActions(['getGoodCategorys','getAddress'])
   },
 }
 </script>
