@@ -28,17 +28,19 @@
             <div :class="{on:!loginType}">
               <section>
                 <section class="login_message">
-                  <input type="tel" maxlength="11" placeholder="手机/邮箱/用户名" >
+                  <input type="tel" maxlength="11" placeholder="手机/邮箱/用户名" v-model="username">
                 </section>
                 <section class="login_verification">
-                  <input type="tel" maxlength="8" placeholder="密码">
-                  <div class="switch_button off">
-                    <div class="switch_circle"></div>
-                    <span class="switch_text">...</span>
+                  <input :type="pwdStatus" maxlength="8" placeholder="密码" v-model="pwd">
+                  <div class="switch_button" :class="pwdStatus==='text' ? 'on': 'off'" @click="changePwdStatus">
+                    <div class="switch_circle" :class="{right:pwdStatus==='text'}"></div>
+                    <span class="switch_text">
+                      {{pwdStatus==='text' ? 'abc': '...'}}
+                    </span>
                   </div>
                 </section>
                 <section class="login_message">
-                  <input type="text" maxlength="11" placeholder="验证码">
+                  <input type="text" maxlength="11" placeholder="验证码" v-model="captcha">
                   <img class="get_verification" src="./images/captcha.svg" alt="captcha">
                 </section>
               </section>
@@ -60,10 +62,21 @@ export default {
         loginType:true, //true 为短信登录 false为密码登录
         phone:"",
         code:"",
-        timeSecond:0
+        timeSecond:0,
+        username:'',
+        pwd:'',
+        captcha:'',
+        pwdStatus:'password'
       }
     },
     methods: {
+      changePwdStatus(){
+        if(this.pwdStatus==='text'){
+          this.pwdStatus='password'
+        }else{
+           this.pwdStatus='text'
+        }
+      },
       handleSendCode(){
        if(this.timeSecond===0){
           this.timeSecond = 15
