@@ -1,5 +1,5 @@
 <template>
-     <div class="footer_guide">
+     <div class="footer_guide" v-show="$route.meta.show">
     <a href="javascript:;" class="guide_item" :class="{on:$route.path=='/msite' }" @click="handleGoto('msite')">
       <span class="item_icon">
         <i class="iconfont icon-waimai"></i>

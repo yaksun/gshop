@@ -6,7 +6,7 @@
              </span>
 
             <span class="header_login" slot="right">
-            <span class="header_login_text">登录|注册</span>
+            <span class="header_login_text" @click="$router.replace('/login')">登录|注册</span>
           </span>
          </HeaderTop>
         <div class="miste-content-wrapper">
