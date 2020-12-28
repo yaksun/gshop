@@ -6,7 +6,8 @@ import {
 import {
     RECEIVE_CATEGORYS,
     RECEIVE_SHOPLISTS,
-    RECEIVE_ADDRESS
+    RECEIVE_ADDRESS,
+    RECEIVE_USERINFO
 } from './mutation-type'
 
 
@@ -31,5 +32,8 @@ export default{
         if(res.code === 0){
             commit(RECEIVE_SHOPLISTS,{shopLists:res.data})
         }
+    },
+     recordUserInfo({commit},userInfo){
+        commit(RECEIVE_USERINFO,{userInfo})
     }
 }

@@ -28,7 +28,7 @@
             <div :class="{on:!loginType}">
               <section>
                 <section class="login_message">
-                  <input type="tel" maxlength="11" placeholder="手机/邮箱/用户名" v-model="username">
+                  <input type="tel" maxlength="11" placeholder="手机/邮箱/用户名" v-model="name">
                 </section>
                 <section class="login_verification">
                   <input :type="pwdStatus" maxlength="8" placeholder="密码" v-model="pwd">
@@ -41,11 +41,11 @@
                 </section>
                 <section class="login_message">
                   <input type="text" maxlength="11" placeholder="验证码" v-model="captcha">
-                  <img class="get_verification" src="./images/captcha.svg" alt="captcha">
+                  <img class="get_verification" src="http://localhost:4000/captcha" alt="captcha" @click="handleGetCaptcha" ref="Img">
                 </section>
               </section>
             </div>
-            <button class="login_submit">登录</button>
+            <button class="login_submit" @click="login">登录</button>
           </form>
           <a href="javascript:;" class="about_us">关于我们</a>
         </div>
@@ -53,23 +53,32 @@
           <i class="iconfont icon-jiantou2"></i>
         </a>
       </div>
+      <AlertTip :alertText="alertText" v-show="alertShow" @closeTip="closeTip"/>
     </div>
 </template>
 <script>
+import {reqSendCode,reqPwdLogin,reqSmsLogin} from '../../api'
+import AlertTip from '../../components/AlertTip/AlertTip.vue'
 export default {
+    components:{
+      AlertTip
+    },
     data(){
       return {
         loginType:true, //true 为短信登录 false为密码登录
         phone:"",
         code:"",
         timeSecond:0,
-        username:'',
+        name:'',
         pwd:'',
         captcha:'',
-        pwdStatus:'password'
+        pwdStatus:'password',
+        alertShow:false,
+        alertText:''
       }
     },
     methods: {
+     
       changePwdStatus(){
         if(this.pwdStatus==='text'){
           this.pwdStatus='password'
@@ -77,17 +86,98 @@ export default {
            this.pwdStatus='text'
         }
       },
-      handleSendCode(){
+      async  handleSendCode(){
        if(this.timeSecond===0){
           this.timeSecond = 15
-        let timer =  setInterval(()=>{
+        this.timer =  setInterval(()=>{
             this.timeSecond--
             if(this.timeSecond<=0){
-              clearInterval(timer)
+              clearInterval(this.timer)
             }
           },1000)
+
+          const result = await reqSendCode(this.phone)
+          console.log(result)
+
+          if(result.code === 1){
+              this.showAlert(result.msg)
+            // 停止计时
+            if(this.timeSecond){
+              this.timeSecond = 0 
+              clearInterval(this.timer)
+              this.timer = undefined;
+            }
+          }
         }
-       }
+       },
+      handleGetCaptcha(){
+        this.$refs.Img.src="http://localhost:4000/captcha?time="+Date.now()
+      },
+
+      async login(){
+        let result ;
+        //  密码登录
+         if(!this.loginType){
+            const {name,pwd,captcha} = this 
+            if(!name){
+              this.showAlert('用户名不能为空!');
+              return 
+            }
+
+            if(!pwd){
+              this.showAlert('密码不能为空!');
+              return ;
+            }
+
+            if(!captcha){
+              this.showAlert('验证码不能为空!');
+              return 
+            }
+
+            result = await reqPwdLogin({name,pwd,captcha})
+         }else{
+            //  短信登录
+            const {phone,code } = this 
+            if(!phone){
+              this.showAlert('手机号不能为空!');
+              return 
+            }
+
+            if(!code){
+              this.showAlert('验证码不能为空!');
+              return 
+            }
+
+            result = await reqSmsLogin(phone)
+
+         }
+
+
+           // 停止计时
+            if(this.timeSecond){
+              this.timeSecond = 0 
+              clearInterval(this.timer)
+              this.timer = undefined;
+            }
+
+         if(result.code==0){
+           this.$store.dispatch('recordUserInfo',result.data)
+           this.$router.replace('/profile');
+         }else{
+           this.handleGetCaptcha();
+           this.showAlert(result.msg)
+         }
+
+       },
+        showAlert(alertText) {
+        this.alertShow = true
+        this.alertText = alertText
+      },
+           // 关闭警告框
+      closeTip () {
+        this.alertShow = false
+        this.alertText = ''
+      }
     },
     computed:{
       phoneStatus(){
